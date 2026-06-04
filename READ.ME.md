@@ -7,45 +7,10 @@ The project implements a high-performance, **dual-contour pipeline architecture*
 
 The core engineering objective is to synergetically combine lightweight linguistic feature extractors and a Naive Bayes classifier with a deep contextual transformer model (BERT). This approach delivers near-perfect classification metrics while optimizing compute footprint and reducing server-side hardware load.
 
----
 
 ## Architecture & Pipeline Workflow
 
 The architecture is managed by a central orchestrator (`app.py`) that coordinates data routing across two isolated analytical contours:
-
-[Incoming News Headline]
-│
-▼
-┌────────────────────────────────────────────────────────┐
-│ FIRST CONTOUR: Linguistic Processor & Expert System    │
-├────────────────────────────────────────────────────────┤
-│ • Text cleaning, tokenization, & lemmatization        │
-│ • Production rules check (CapsLock, !!!, ...)          │
-│ • Naive Bayes odds evaluation (SQLite Knowledge Base)  │
-└─────────────────────────┬──────────────────────────────┘
-│
-[Short-Circuit Flag Check]
-Is score in the Grey Zone [0.4, 0.75]?
-│
-┌────────────────┴────────────────┐
-No  │                                 │ Yes
-(stop_inference = True)             (stop_inference = False)
-▼                                 ▼
-┌────────────────────────┐       ┌────────────────────────┐
-│ IMMEDIATE VERDICT      │       │ SECOND CONTOUR: BERT   │
-│ (Saves ~71.8% CPU time)│       ├────────────────────────┤
-│                        │       │ • Contextual Embedding │
-│ Zones: Green / Red     │       │ • Deep Subword Analysis│
-└────────────────────────┘       └─────────┬──────────────┘
-│
-▼
-┌────────────────────────┐
-│ FINAL ARBITRATION      │
-│ Zones: Green / Yellow /│
-│        Red             │
-└────────────────────────┘
-
-```
 
 1. **First Contour (Expert-Statistical Filter):**
    * **Preprocessing:** `linguistic_processor.py` strips web noise, stop words, and punctuation. Morphological lemmatization is performed via `pymorphy3`.
